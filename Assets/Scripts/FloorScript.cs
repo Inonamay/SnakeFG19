@@ -7,12 +7,7 @@ public class FloorScript : MonoBehaviour
     GameObject objectOnTile;
   
     public GameObject GetObjectOnTile()
-    {
-        return objectOnTile;
-    }
+    {return objectOnTile; }
     public void SetObjectOnTile(GameObject target)
-    {
-        objectOnTile = target;
-        
-    }
+    { objectOnTile = target;}
 }

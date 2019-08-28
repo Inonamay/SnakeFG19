@@ -28,18 +28,12 @@ public class GameController : MonoBehaviour
         createFood();
         score = 0;
     }
-    private void Update()
-    {
-        
-    }
     void SpawnPlayer()
-    {
-        GameObject temp = Instantiate(player);
-    }
+    {Instantiate(player); }
     public void createFood()
     {
-        bool isFood = false;
-        while (!isFood)
+        bool isFoodOnMap = false;
+        while (!isFoodOnMap)
         {
             int y = Random.Range(1, coordinates.Count - 1);
             int x = Random.Range(1, coordinates[y].Count - 1);
@@ -47,11 +41,10 @@ public class GameController : MonoBehaviour
             {
                 coordinates[y][x].GetComponent<FloorScript>().SetObjectOnTile(Instantiate(food));
                 coordinates[y][x].GetComponent<FloorScript>().GetObjectOnTile().transform.position = coordinates[y][x].transform.position + Vector3.back;
-                isFood = true;
+                isFoodOnMap = true;
             }
         }
     }
-
     void GenerateGrid()
     {
         for (int y = 0; y < 20; y++)
@@ -74,7 +67,5 @@ public class GameController : MonoBehaviour
         scoreText.text = "Score: " + score;
     }
     public List<List<GameObject>> GetCoordinates()
-    {
-        return coordinates;
-    }
+    {return coordinates;}
 }

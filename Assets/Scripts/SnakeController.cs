@@ -9,10 +9,10 @@ internal class Node
     internal GameObject objectData;
     internal Transform currentPos;
     internal Node next;
-    public Node(GameObject d, Transform c)
+    public Node(GameObject targetGameObject, Transform originalPos)
     {
-        objectData = d;
-        currentPos = c;
+        objectData = targetGameObject;
+        currentPos = originalPos;
         next = null;
     }
 }
@@ -24,7 +24,6 @@ internal class SingleLinkedList
         Node new_node = new Node(new_data, new_Position);
         new_node.next = singlyList.head;
         singlyList.head = new_node;
-       
     }
     internal void InsertLast(SingleLinkedList singlyList, GameObject new_data, Transform new_Position)
     {
@@ -46,7 +45,6 @@ internal class SingleLinkedList
         }
         return temp;
     }
-
     internal void Move(SingleLinkedList list, Node target, Transform pos)
     {
         if(null != target)
@@ -65,26 +63,29 @@ internal class SingleLinkedList
 }
 public class SnakeController : MonoBehaviour
 {
-    
+    //All floats, positions, directions and a timer
+    #region
     float posX;
     float posY;
+    float directionX;
+    float directionY;
+    [SerializeField]
+    float timer;
+    float timerCounter;
+    #endregion
+    //Gameobjects and components
+    #region
     GameObject gameController;
     GameController gc;
     List<List<GameObject>> snakeCoordinates = new List<List<GameObject>>();
     GameObject currentTile;
     [SerializeField]
-    float timer;
-    float timerCounter;
-    float directionX;
-    float directionY;
-    GameObject connectedTail;
-    SingleLinkedList tail = new SingleLinkedList();
-    [SerializeField]
     Sprite tailSprite;
+    #endregion
+    SingleLinkedList tail = new SingleLinkedList();
     bool started = false;
     private void Start()
     {
-        
         gameController = GameObject.FindGameObjectWithTag("GameController");
         gc = gameController.GetComponent<GameController>();
         snakeCoordinates = gc.GetCoordinates();
@@ -100,7 +101,6 @@ public class SnakeController : MonoBehaviour
     }
     private void Update()
     {
-       
             if (Input.GetAxisRaw("Horizontal") != 0 && Input.GetAxisRaw("Vertical") != 0) { }
             else
             {
@@ -115,7 +115,6 @@ public class SnakeController : MonoBehaviour
                     { directionY = 1 * Input.GetAxisRaw("Vertical"); }
                     else
                     { directionY = 0; }
-
                 }
             }
             if (timerCounter < 0)
@@ -124,37 +123,20 @@ public class SnakeController : MonoBehaviour
                 if (posY + directionY < snakeCoordinates.Count - 1 && posY + directionY > 0)
                 { posY += directionY; }
                 else
-                {
-                    GameOver();
-                }
+                {GameOver();}
                 if (posX + directionX < snakeCoordinates[Mathf.RoundToInt(posY)].Count - 1 && posX + directionX > 0)
                 { posX += directionX; }
                 else
-                {
-                    GameOver();
-                }
-
+                {GameOver();}
                 Move(snakeCoordinates[Mathf.RoundToInt(posY)][Mathf.RoundToInt(posX)]);
             }
             else
             { timerCounter -= Time.deltaTime; }
-        
     } 
     void ResetTimer()
-    {
-        timerCounter = timer;
-    }
-    public GameObject GetConnectedTail()
-    {
-        return connectedTail;
-    }
-    public void SetConnectedTail(GameObject target)
-    {
-        connectedTail = target;
-    }
+    {timerCounter = timer;}
     void Eat()
     {
-        
         Destroy(currentTile.GetComponent<FloorScript>().GetObjectOnTile());
         gc.AddScore();
         tail.InsertLast(tail, CreateTail(), currentTile.transform) ;
@@ -170,37 +152,25 @@ public class SnakeController : MonoBehaviour
         temp.GetComponent<SpriteRenderer>().sprite = tailSprite;
         return temp;
     }
-    
     private void Move(GameObject moveTarget)
     {
-       
         currentTile.GetComponent<FloorScript>().SetObjectOnTile(null);
         currentTile = moveTarget;
         if(currentTile.GetComponent<FloorScript>().GetObjectOnTile() == null)
         {
-            
             currentTile.GetComponent<FloorScript>().SetObjectOnTile(gameObject);
             tail.Move(tail, tail.head, currentTile.transform);
-           
         }
         else
         {
             if(currentTile.GetComponent<FloorScript>().GetObjectOnTile().tag == "Food")
-            {
-                Eat();
-            }
+            {Eat();}
             else
-            {
-                GameOver();
-            }
+            {GameOver();}
         }
     }
     void GameOver()
-    {
-        SceneManager.LoadScene(0);
-    }
+    {SceneManager.LoadScene(0); }
     public GameObject GetCurrentTile()
-    {
-        return currentTile;
-    }
+    {return currentTile; }
 }
