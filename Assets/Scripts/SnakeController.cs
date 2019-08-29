@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
+//A class node that keeps track of the tail, a node is a class that keeps track of which game object it is attached to and the position of that object, and the next object in line that it is connected to.
 internal class Node
 {
     internal GameObject objectData;
@@ -18,13 +18,16 @@ internal class Node
 }
 internal class SingleLinkedList
 {
+    //The list only keeps track of the first node, the head but allows for several methods to interact with the entire list trough the objects that are connected to the head via next
     internal Node head;
+    //Creates a new node, connects it to the current head of the list and then makes the new node the head
     internal void InsertFront(SingleLinkedList singlyList, GameObject new_data, Transform new_Position)
     {
         Node new_node = new Node(new_data, new_Position);
         new_node.next = singlyList.head;
         singlyList.head = new_node;
     }
+    //finds the last node in the chain and adds a connection there to a new node so that the new node is the last
     internal void InsertLast(SingleLinkedList singlyList, GameObject new_data, Transform new_Position)
     {
         Node new_node = new Node(new_data, new_Position);
@@ -36,6 +39,7 @@ internal class SingleLinkedList
         Node lastNode = GetLastNode(singlyList);
         lastNode.next = new_node;
     }
+    //finds the last node and returns it by simply checking the next node until there is no next node
     internal Node GetLastNode(SingleLinkedList singlyList)
     {
         Node temp = singlyList.head;
@@ -45,6 +49,7 @@ internal class SingleLinkedList
         }
         return temp;
     }
+    //A method that goes through the entire chain of nodes and changes their position both in unity and the data stored in them, also the last node removes their trace from the tile they are on
     internal void Move(SingleLinkedList list, Node target, Transform pos)
     {
         if(null != target)
@@ -52,9 +57,7 @@ internal class SingleLinkedList
             if (target.next != null)
             { Move(list, target.next, target.currentPos); }
             else
-            {
-                target.currentPos.gameObject.GetComponent<FloorScript>().SetObjectOnTile(null);
-            }
+            { target.currentPos.gameObject.GetComponent<FloorScript>().SetObjectOnTile(null); }
             target.currentPos = pos;
             target.objectData.transform.position = target.currentPos.transform.position - Vector3.forward;
             pos.gameObject.GetComponent<FloorScript>().SetObjectOnTile(target.objectData);
@@ -63,7 +66,7 @@ internal class SingleLinkedList
 }
 public class SnakeController : MonoBehaviour
 {
-    //All floats, positions, directions and a timer
+    //Positions, directions and a timer
     #region
     float posX;
     float posY;
@@ -86,24 +89,31 @@ public class SnakeController : MonoBehaviour
     bool started = false;
     private void Start()
     {
+        //Code related to the gamecontroller
+        #region
         gameController = GameObject.FindGameObjectWithTag("GameController");
         gc = gameController.GetComponent<GameController>();
         snakeCoordinates = gc.GetCoordinates();
+        #endregion
+        //Position generation
+        #region
         posY = Random.Range(1, snakeCoordinates.Count - 1);
         posX = Random.Range(1, snakeCoordinates[Mathf.RoundToInt(posY)].Count - 1);
         currentTile = snakeCoordinates[Mathf.RoundToInt(posY)][Mathf.RoundToInt(posX)];
-        tail.InsertFront(tail, gameObject, currentTile.transform);
         Move(snakeCoordinates[Mathf.RoundToInt(posY)][Mathf.RoundToInt(posX)]);
+        #endregion
         ResetTimer();
-        tail.InsertLast(tail, CreateTail(), currentTile.transform);
-        tail.InsertLast(tail, CreateTail(), currentTile.transform);
-
+        tail.InsertFront(tail, gameObject, currentTile.transform);
+        for (int i = 0; i < 2; i++)
+        {tail.InsertLast(tail, CreateTail(), currentTile.transform);}
     }
     private void Update()
     {
+        //Checks so that the player does not press 2 buttons at once in which case the snake will continue in the last direction it went in
             if (Input.GetAxisRaw("Horizontal") != 0 && Input.GetAxisRaw("Vertical") != 0) { }
             else
             {
+            //Gets the direction the snake is moving through input getaxisraw so that the speed is constant
                 if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0) { }
                 else
                 {
@@ -117,9 +127,11 @@ public class SnakeController : MonoBehaviour
                     { directionY = 0; }
                 }
             }
+            //A timer that handles the movement so that it does not happen too fast
             if (timerCounter < 0)
             {
                 ResetTimer();
+            //Two if statements checking so that the player does not collide with a wall
                 if (posY + directionY < snakeCoordinates.Count - 1 && posY + directionY > 0)
                 { posY += directionY; }
                 else
@@ -135,14 +147,17 @@ public class SnakeController : MonoBehaviour
     } 
     void ResetTimer()
     {timerCounter = timer;}
+    //The method that is called when the player lands on a tile with food on it
     void Eat()
     {
+        //Destroys the food object on the tile and calls for the gamecontroller to both add a point to the score and create a new food somewhere on the map. Also adds a new piece of tail
         Destroy(currentTile.GetComponent<FloorScript>().GetObjectOnTile());
         gc.AddScore();
         tail.InsertLast(tail, CreateTail(), currentTile.transform) ;
         gc.createFood();
         Move(currentTile);
     }
+    //Creates a new tail object so that there does not need to be a prefab for the tail, which can use any sprite put into the script
     GameObject CreateTail()
     {
         GameObject temp = new GameObject("snakeTail", typeof(SpriteRenderer));
@@ -154,6 +169,7 @@ public class SnakeController : MonoBehaviour
     }
     private void Move(GameObject moveTarget)
     {
+        //Removes self from the previous tile the object occupied and checks the desired tile to move to if there is an object on it, if there isnt, it simply moves to the tile otherwise it depends on the object on the tile
         currentTile.GetComponent<FloorScript>().SetObjectOnTile(null);
         currentTile = moveTarget;
         if(currentTile.GetComponent<FloorScript>().GetObjectOnTile() == null)
@@ -163,12 +179,14 @@ public class SnakeController : MonoBehaviour
         }
         else
         {
+            //The only time the player lands on a tile that has a gameobject on it that is not food, it will lose
             if(currentTile.GetComponent<FloorScript>().GetObjectOnTile().tag == "Food")
             {Eat();}
             else
             {GameOver();}
         }
     }
+    //Reloads the scene to start over. Note: room left for improvement
     void GameOver()
     {SceneManager.LoadScene(0); }
     public GameObject GetCurrentTile()

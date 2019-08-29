@@ -311,11 +311,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbdda43a6a4c94d429b1e102ea272485, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tile: {fileID: 3815017880945353544, guid: 080cd9a106f9f3546bf829fe7e8e0018, type: 3}
-  timer: 10
-  food: {fileID: 4130008246611645989, guid: 7bb70d0afd09910489b3b488efe6ea37, type: 3}
-  player: {fileID: 224131020953386545, guid: 991e8b4d5be19a94fa7610da559ff13b, type: 3}
-  tail: {fileID: 2546688268643855437, guid: e58a0288989c8ca46b5a61846ad1b1ba, type: 3}
+  tileObject: {fileID: 3815017880945353544, guid: 080cd9a106f9f3546bf829fe7e8e0018,
+    type: 3}
+  foodObject: {fileID: 4130008246611645989, guid: 7bb70d0afd09910489b3b488efe6ea37,
+    type: 3}
+  playerObject: {fileID: 224131020953386545, guid: 991e8b4d5be19a94fa7610da559ff13b,
+    type: 3}
   scoreText: {fileID: 338959303}
 --- !u!4 &369959852
 Transform:
