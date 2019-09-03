@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
             }
         }
     }
-    //handles the entire gridgeneration and adds the coordinates
+    //handles the entire gridgeneration and adds the tiles to the coordinates lists
     void GenerateGrid()
     {
         //Double for loop creating all the tiles and adding their coordinates to a list for ease of access

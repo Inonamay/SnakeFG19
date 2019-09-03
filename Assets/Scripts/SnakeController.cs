@@ -66,7 +66,7 @@ internal class SingleLinkedList
 }
 public class SnakeController : MonoBehaviour
 {
-    //Positions, directions and a timer
+    //Positions, directions and a timer (All floats used by the object)
     #region
     float posX;
     float posY;
