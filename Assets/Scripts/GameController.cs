@@ -31,6 +31,10 @@ public class GameController : MonoBehaviour
         SpawnPlayer();
         createFood();
         score = 0;
+        if (tileObject == null) { tileObject = new GameObject("Tile", typeof(MeshRenderer), typeof(FloorScript)); }
+        if (foodObject == null) { foodObject = new GameObject("Tile", typeof(MeshRenderer)); }
+        if (playerObject == null) { playerObject = new GameObject("Tile", typeof(MeshRenderer), typeof(SnakeController)); }
+        if (scoreText == null) { scoreText = GameObject.Find("ScoreText").GetComponent<Text>(); }
     }
     //spawn the player
     void SpawnPlayer()
@@ -56,6 +60,8 @@ public class GameController : MonoBehaviour
     //handles the entire gridgeneration and adds the tiles to the coordinates lists
     void GenerateGrid()
     {
+        GameObject tileParent = new GameObject("TileParent");
+        GameObject wallParent = new GameObject("Wall");
         //Double for loop creating all the tiles and adding their coordinates to a list for ease of access
         for (int y = 0; y < 20; y++)
         {
@@ -65,7 +71,12 @@ public class GameController : MonoBehaviour
                 coordinates[y].Add(Instantiate(tileObject));
                 coordinates[y][x].transform.position = Vector3.up * (y * 0.5f + 0.25f) + Vector3.right * (x * 0.5f + 0.25f);
                 if(y == 0 || y == 19 || x == 0 || x == 35)
-                {coordinates[y][x].GetComponent<MeshRenderer>().material.color = Color.black;}
+                {
+                    coordinates[y][x].GetComponent<MeshRenderer>().material.color = Color.black;
+                    coordinates[y][x].GetComponent<FloorScript>().SetObjectOnTile(new GameObject());
+                    coordinates[y][x].GetComponent<FloorScript>().GetObjectOnTile().transform.parent = wallParent.transform;
+                }
+                coordinates[y][x].transform.parent = tileParent.transform;
             }
         }
     }

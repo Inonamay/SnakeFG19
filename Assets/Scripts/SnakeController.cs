@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.SceneManagement;
 
 //A class node that keeps track of the tail, a node is a class that keeps track of which game object it is attached to and the position of that object, and the next object in line that it is connected to.
@@ -73,7 +74,7 @@ public class SnakeController : MonoBehaviour
     float directionX;
     float directionY;
     [SerializeField]
-    float timer;
+    float timer = 1;
     float timerCounter;
     #endregion
     //Gameobjects and components
@@ -86,9 +87,10 @@ public class SnakeController : MonoBehaviour
     Sprite tailSprite;
     #endregion
     SingleLinkedList tail = new SingleLinkedList();
-    bool started = false;
     private void Start()
     {
+        //Completely unnecessary and will result in error but it removes the warning label
+        if(tailSprite == null) { tailSprite = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Prefab/Tail.png", typeof(Texture2D)); }
         //Code related to the gamecontroller
         #region
         gameController = GameObject.FindGameObjectWithTag("GameController");
@@ -109,42 +111,46 @@ public class SnakeController : MonoBehaviour
     }
     private void Update()
     {
-        //Checks so that the player does not press 2 buttons at once in which case the snake will continue in the last direction it went in
-            if (Input.GetAxisRaw("Horizontal") != 0 && Input.GetAxisRaw("Vertical") != 0) { }
-            else
-            {
-            //Gets the direction the snake is moving through input getaxisraw so that the speed is constant
-                if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0) { }
-                else
-                {
-                    if (Input.GetAxisRaw("Horizontal") != 0)
-                    { directionX = 1 * Input.GetAxisRaw("Horizontal"); }
-                    else
-                    { directionX = 0; }
-                    if (Input.GetAxisRaw("Vertical") != 0)
-                    { directionY = 1 * Input.GetAxisRaw("Vertical"); }
-                    else
-                    { directionY = 0; }
-                }
-            }
+            PlayerInput();
             //A timer that handles the movement so that it does not happen too fast
             if (timerCounter < 0)
             {
                 ResetTimer();
-            //Two if statements checking so that the player does not collide with a wall
-                if (posY + directionY < snakeCoordinates.Count - 1 && posY + directionY > 0)
-                { posY += directionY; }
-                else
-                {GameOver();}
-                if (posX + directionX < snakeCoordinates[Mathf.RoundToInt(posY)].Count - 1 && posX + directionX > 0)
-                { posX += directionX; }
-                else
-                {GameOver();}
-                Move(snakeCoordinates[Mathf.RoundToInt(posY)][Mathf.RoundToInt(posX)]);
+                HandleMovement();
             }
             else
             { timerCounter -= Time.deltaTime; }
     } 
+    void PlayerInput()
+    {
+        //Checks so that the player does not press 2 buttons at once in which case the snake will continue in the last direction it went in
+        if (Input.GetAxisRaw("Horizontal") != 0 && Input.GetAxisRaw("Vertical") != 0) { }
+        else
+        {
+            //Gets the direction the snake is moving through input getaxisraw so that the speed is constant
+            if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0) { }
+            else
+            {
+                if (Input.GetAxisRaw("Horizontal") != 0)
+                { directionX = 1 * Input.GetAxisRaw("Horizontal"); }
+                else
+                { directionX = 0; }
+                if (Input.GetAxisRaw("Vertical") != 0)
+                { directionY = 1 * Input.GetAxisRaw("Vertical"); }
+                else
+                { directionY = 0; }
+            }
+        }
+    }
+    void HandleMovement()
+    {
+        //Two if statements checking so that the player does not collide with a wall
+        if (posY + directionY < snakeCoordinates.Count && posY + directionY >= 0)
+        { posY += directionY; }
+        if (posX + directionX < snakeCoordinates[Mathf.RoundToInt(posY)].Count && posX + directionX >= 0)
+        { posX += directionX; }
+        Move(snakeCoordinates[Mathf.RoundToInt(posY)][Mathf.RoundToInt(posX)]);
+    }
     void ResetTimer()
     {timerCounter = timer;}
     //The method that is called when the player lands on a tile with food on it
